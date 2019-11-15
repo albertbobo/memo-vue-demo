@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>一个备忘录</title>
+    <link rel="stylesheet" href="lib/normalize.css">
+    <link rel="stylesheet" href="lib/font-awesome.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="main">
+    <div class="navbar">
+        <h1>备忘录</h1>
+    </div>
+    <div class="header">NNNothing</div>
+    <div class="container">
+        <form @submit.prevent="merge" id="task-form">
+            <label for="task-input">
+                <input v-model="current.title" id="task-input" type="text"
+                       autofocus autocomplete="off" placeholder="记点什么…">
+            </label>
+
+            <!--input内容有id则显示以下-->
+            <div v-if="current.id">
+                <label for="task-desc">
+                    <textarea v-model="current.desc" id="task-desc"></textarea>
+                </label>
+                <label for="task-time">
+                    <input v-model="current.alert_at" id="task-time" type="datetime-local">
+                </label>
+                <button type="submit" class="btn-submit">确认</button>
+            </div>
+        </form>
+
+        <!--未完成-->
+        <div class="segment-title">未完成</div>
+        <ul class="task-list">
+            <!--未完成列表组件-->
+            <task :todo="todo"
+                  v-if="!todo.completed"
+                  v-for="(todo, index) in list">
+            </task>
+        </ul>
+
+        <!--已完成-->
+        <div class="segment-title">已完成</div>
+        <ul class="task-list">
+            <!--已完成列表组件-->
+            <tasked :todo="todo"
+                    v-if="todo.completed"
+                    v-for="(todo, index) in list">
+            </tasked>
+        </ul>
+    </div>
+</div>
+
+<!--提醒铃声-->
+<audio id="alert-sound">
+    <source src="sound/clock-alarm-bell.mp3">
+</audio>
+
+<!--未完成列表-->
+<template id="task-tpl">
+    <li class="item clear-fix">
+        <div class="item-wrapper">
+            <span @click="action('toggle_complete', todo.id)"
+                  class="icon-check fa fa-check-circle-o"></span>
+            <span class="title">{{todo.title}}</span>
+            <div class="icon-wrapper">
+                <span @click="action('remove', todo.id)" class="icon fa fa-trash-o"></span>   <!--删除-->
+                <span @click="action('set_current', todo)" class="icon fa fa-pencil"></span>  <!--更新-->
+                <span @click="action('toggle_detail', todo.id)" class="icon fa fa-ellipsis-h"></span>   <!--详情-->
+            </div>
+        </div>
+        <div v-if="todo.show_detail" class="desc">备注：{{todo.desc || '暂无'}}</div>
+    </li>
+</template>
+
+<!--已完成列表-->
+<template id="tasked-tpl">
+    <li class="item clear-fix">
+        <div class="item-wrapper">
+            <span @click="action('toggle_complete', todo.id)"
+                  class="icon-check icon-checked fa fa-check-circle"></span>
+            <span class="title title-complete">{{todo.title}}</span>
+            <div class="icon-wrapper">
+                <span @click="action('remove', todo.id)" class="icon fa fa-trash-o"></span>   <!--删除-->
+            </div>
+        </div>
+    </li>
+</template>
+
+<script src="lib/vue.js"></script>
+<script src="js/myStorage.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
